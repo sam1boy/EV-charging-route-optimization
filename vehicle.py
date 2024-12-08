@@ -119,14 +119,12 @@ class EVehicle:
         self._to_cur = distance
         return self._cur_id
     
-    def check_reachable(self, season, nodes, dest, roads, t):
+    def check_reachable(self, season, path, roads, t):
         # Prevent battery from instant shut off
         if t < 5:
             t = 5
             
         cur_SOC = self._SOC
-
-        path = fastest_path(nodes, nodes.get_node(self.cur_id), dest)
 
         for i in range(len(path) - 1):
             road = select_road(path[i], path[i+1], roads)

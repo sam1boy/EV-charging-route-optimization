@@ -23,8 +23,8 @@ SEASON = "winter" # -5 celcius
 
 THRESHOLD = 50
 # SOC in percentage
-END_TRIP_SOC = 0
-# SOC in percentage
+END_TRIP_SOC = 5
+# SOC in percentage, at least 5%
 MODEL = 0
 # 0: Original paper
 # 1: Purposed method
@@ -38,7 +38,7 @@ for test in range(TESTS):
         dest_id=18,
         capacity=57.0,
         SOC=60.0,
-        efficiency=0.16
+        efficiency=0.13
     )
     nodes.set_start_dest(ev.start_id, ev.dest_id)
 
@@ -98,7 +98,7 @@ for test in range(TESTS):
 
         # Checks battery status
         # Checks if the battery is below threshold or if the vehicle will not reach destination
-        reachable = ev.check_reachable(SEASON, nodes, nodes.dest, roads, END_TRIP_SOC)
+        reachable = ev.check_reachable(SEASON, path_rstack, roads, END_TRIP_SOC)
         if ev.SOC < THRESHOLD and not reachable:
             # Find the nearest charging station if the car is no where near one
             if not nodes.is_CS(cur_node):
@@ -115,11 +115,12 @@ for test in range(TESTS):
                 TRmax_all = []
                 paths = []
                 for station in CS:
+                    path = fastest_path(nodes, nodes.get_node(ev.cur_id), station.node)
                     cur_CS = CS[len(TRmax_all)]
                     if MODEL == 0:
-                        available = station._occupy * ev.check_reachable(SEASON, nodes, station.node, roads, 0)
+                        available = station._occupy * ev.check_reachable(SEASON, path, roads, 0)
                     elif MODEL == 1:
-                        available = ev.check_reachable(SEASON, nodes, station.node, roads, 0)
+                        available = ev.check_reachable(SEASON, path, roads, 0)
                     
                     path = []
                     trmax = math.inf
